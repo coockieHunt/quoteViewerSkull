@@ -25,6 +25,11 @@
 .header #AlertText .topNotifier {
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+    background-color: rgb(228, 226, 226);
+
+    text-align: center;
+
+    padding: 5px 10px;
 }
 
 .header #AlertText .topNotifier.visible_TopNotifier {
