@@ -1,4 +1,4 @@
-import config from '../../config.json';
+import config from '../../config.js';
 import { isLongQuote } from '../../utils/quoteHelpers';
 
 const QuoteContent = ({ data, onReadMore, onCopy }) => {

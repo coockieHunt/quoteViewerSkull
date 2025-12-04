@@ -17,7 +17,7 @@ import AdminAddQuote from './components/AdminAddQuote.jsx';
 import copyQuote from './utils/copyQuote.jsx';
 import { PlayClickSound } from './utils/interactSond.jsx';
 import { useQuotes } from './hooks/useQuotes.jsx';
-import config from './config.json';
+import config from './config.js';
 import { UmamiTracker } from './components/umami/umami.components.jsx';
 
 
