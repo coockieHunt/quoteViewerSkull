@@ -1,139 +1,128 @@
 import './App.css';
-import './styles/skull.css'
-import './styles/quoteBlock.css'
-import './styles/skeleton/header.css'
-import './styles/skeleton/footer.css'
+import './styles/skull.css';
+import './styles/quoteBlock.css';
+import './styles/skeleton/header.css';
+import './styles/skeleton/footer.css';
 
 import { useState } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faVolumeMute, faVolumeUp, faChevronLeft, faChevronRight, faClose, faCopy} from "@fortawesome/free-solid-svg-icons";
-import FollowObjectDown from './components/followObjectDown.jsx';
-import TopNotifier from './components/topNotifier.jsx';
-import DustFlow from './components/dustFlow.jsx';
+import { faVolumeMute, faVolumeUp } from "@fortawesome/free-solid-svg-icons";
 
+import FollowObjectDown from './components/Effect/followObjectDown.jsx';
+import TopNotifier from './components/QuoteViews/topNotifier.jsx';
+import DustFlow from './components/Effect/dustFlow.jsx';
+
+import FullPageView from './components/QuoteViews/FullPageView.jsx';
+import CompactView from './components/QuoteViews/CompactView.jsx';
+import AdminAddQuote from './components/AdminAddQuote.jsx';
 import copyQuote from './utils/copyQuote.jsx';
-import {PlayClickSound} from './utils/interactSond.jsx';
-import curQuoteData from './data/quote.json';
+import { PlayClickSound } from './utils/interactSond.jsx';
+import { useQuotes } from './hooks/useQuotes.jsx';
 import config from './data/config.json';
 
-
 function App() {
-  // State variables
-  const [AlertText, setAlertText] = useState("");
+  const [alertText, setAlertText] = useState("");
   const [notifierTrigger, setNotifierTrigger] = useState(0);
   const [muted, setMuted] = useState(false);
   const [curQuoteIndex, setCurQuoteIndex] = useState(0);
   const [fullPageOpen, setFullPageOpen] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+  
+  const { quotes, loading, error } = useQuotes();
 
-  // Handle quote copy action
-  function handleCopyQuote(textCopy) {
+  const handleCopyQuote = (textCopy) => {
     copyQuote({ quote: textCopy, muted });
     setAlertText(config.copy_success_message);
-    setNotifierTrigger(t => t + 1); 
-  }
-
-  // const variable
-  const icon_multiplier_class = "fa-2x";
-  const icon_disabled_class = muted ? "mute-button sound_off" : "mute-button";
-
-  // Render quote based on its type
-  const QuoteType = (dataQuote) => {
-    switch(dataQuote.type) {
-      case "quote":
-        return (
-          <div>
-            <p className='short'> 
-              “ {dataQuote.quote} ”
-            </p>
-           
-          </div>
-        );
-      case "text":
-        return (
-          <div>
-            <h2>{dataQuote.title}</h2>
-            <p className='long'>{dataQuote.text.substring(0, config.max_quote_length)}...</p>
-            <button onClick={() =>  setFullPageOpen(true)}>voir plus</button>
-          </div>
-        );
-      default:
-        return <span style={{ color: 'red' }}>[Unsupported quote type]</span>;
-    }
+    setNotifierTrigger(prev => prev + 1);
   };
 
-  // Components for quote display
-  const QuoteLong = () => {
-    return(        
-      <div id='QuoteBlock' className='max'>
-        <div className="FullPage">
-          <div className="top">
-            <button onClick={() => setFullPageOpen(false)}><FontAwesomeIcon icon={faClose} /></button>
-            <h2>{curQuoteData[curQuoteIndex].title}</h2>
-            <button onClick={() => handleCopyQuote(curQuoteData[curQuoteIndex].text)}><FontAwesomeIcon icon={faCopy} /></button>
-          </div>
-          <div className='content'>
-            <p>{curQuoteData[curQuoteIndex].text}</p>
-          </div>
-            
-        </div>
-      </div>
-    ) ;
-  }
+  const toggleMute = () => {
+    setMuted(!muted);
+    PlayClickSound();
+  };
 
-  // Simple quote display
-  const QuoteSimple = () => {
-    return(
-      <>
-          <title>{config.title_app}</title>
-          <div id='QuoteBlock' className='min'>
-              <button 
-                className={curQuoteIndex > 0 ? "arrowButton" : "arrowButton disabled"}
-                onClick={() => curQuoteIndex > 0 ? setCurQuoteIndex(curQuoteIndex - 1) : null}>
-                  <FontAwesomeIcon icon={faChevronLeft} />
-              </button>
-            <div id='quoteContainer'>
-              <span onClick={curQuoteData[curQuoteIndex].type === "quote" ? () => handleCopyQuote(curQuoteData[curQuoteIndex].quote) : null}>
-                {QuoteType(curQuoteData[curQuoteIndex])}
-              </span>
-            </div>
-            <button 
-              className={curQuoteIndex < curQuoteData.length - 1 ? "arrowButton" : "arrowButton disabled"}
-              onClick={() => curQuoteIndex < curQuoteData.length - 1 ? setCurQuoteIndex(curQuoteIndex + 1) : null}>
-                <FontAwesomeIcon icon={faChevronRight} />
-            </button>
-          </div>
-        </>
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div id='QuoteBlock' className='min'>
+          <div id='quoteContainer'><span>Chargement des citations...</span></div>
+        </div>
+      );
+    }
+    if (error) {
+      return (
+        <div id='QuoteBlock' className='min'>
+          <div id='quoteContainer'><span>Erreur: {error}</span></div>
+        </div>
+      );
+    }
+    if (!quotes || quotes.length === 0) {
+      return (
+        <div id='QuoteBlock' className='min'>
+          <div id='quoteContainer'><span>Aucune citation disponible</span></div>
+        </div>
+      );
+    }
+
+    if (fullPageOpen) {
+      return (
+        <FullPageView 
+          data={quotes[curQuoteIndex]} 
+          onClose={() => setFullPageOpen(false)} 
+          onCopy={handleCopyQuote} 
+        />
+      );
+    }
+
+    return (
+      <CompactView 
+        data={quotes[curQuoteIndex]} 
+        index={curQuoteIndex} 
+        total={quotes.length} 
+        setIndex={setCurQuoteIndex} 
+        onReadMore={() => setFullPageOpen(true)} 
+        onCopy={handleCopyQuote} 
+      />
     );
-  }
-  
+  };
+
   return (
     <>
-      <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="16x16 32x32" />
-      <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-      <link rel="apple-touch-icon" sizes="180x180" href="/favicon-96x96.png" />
-      <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
-      <link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png" />
-      <link rel="icon" type="image/png" sizes="512x512" href="/web-app-manifest-512x512.png" />
-
       <DustFlow />
-      <FollowObjectDown muted={muted}/>
+      <FollowObjectDown muted={muted} shifted={fullPageOpen} />
       
       <div className="header">
         <h1>{config.title_page}</h1>
-        <span id='AlertText'>{<TopNotifier message={AlertText} trigger={notifierTrigger}/>}</span>
-        <button onClick={() => (setMuted(!muted), PlayClickSound())} className={icon_disabled_class}>
-          {muted ?  <FontAwesomeIcon icon={faVolumeMute} className={icon_multiplier_class} /> : <FontAwesomeIcon icon={faVolumeUp} className={icon_multiplier_class} />}
+        <span id='AlertText'>
+          <TopNotifier message={alertText} trigger={notifierTrigger} />
+        </span>
+        <button onClick={toggleMute} className={`mute-button ${muted ? "sound_off" : ""}`}>
+          <FontAwesomeIcon icon={muted ? faVolumeMute : faVolumeUp} className="fa-2x" />
         </button>
       </div>
 
-      {fullPageOpen ? <QuoteLong /> : <QuoteSimple />}
+      {showAdmin && <AdminAddQuote onClose={() => setShowAdmin(false)} />}
+
+      {renderContent()}
 
       <div className="footer">
         App <a href='https://github.com/coockieHunt/quoteViewerSkull'>quoteViewerSkull</a> Created by <a href="https://jonathangleyze.fr">jonathangleyze.fr</a>
+        
+        <span 
+            onClick={() => setShowAdmin(true)} 
+            style={{ 
+                cursor: 'pointer', 
+                marginLeft: '10px', 
+                fontSize: '20px',
+                userSelect: 'none' 
+            }}
+            title="Admin Access"
+        >
+            π
+        </span>
       </div>
     </>
   );
 }
-
 
 export default App;

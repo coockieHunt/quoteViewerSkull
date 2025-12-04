@@ -1,9 +1,3 @@
-/**
- * Plays a short click sound using the Web Audio API.
- * Creates an oscillator and gain node to produce a sine wave at 440 Hz,
- * with a quick exponential decay for a click effect.
- * The sound lasts approximately 0.2 seconds.
- */
 let ctx = new AudioContext();
 
 function PlayClickSound() {

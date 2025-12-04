@@ -1,33 +1,119 @@
 # Quote Display App / ENG
 
-A small React (Vite) project to display quotes and longer texts with an interactive skull animation that follows the mouse, sound interactions, and handy controls.
+A small React (Vite) project to display quotes and longer texts with an interactive skull animation that follows the mouse, sound interactions, and handy controls. Now with Supabase integration for dynamic quote management and admin functionality.
 
 ---
 
-## JSON File Format
+## Setup & Configuration
 
-The `src/quote.json` file contains an array of objects. Each object can represent either a simple quote or a detailed entry with a title and text.
-
-### Example — Simple Quote
-```json
-{
-  "quote": "Science is a way of thinking much more than it is a body of knowledge."
-}
+### 1. Install Dependencies
+```bash
+npm install
 ```
 
-### Example — Title and Text Entry
-```json
-{
-  "title": "The Twin Sisters of Understanding",
-  "text": "As far as I can remember, I have always appreciated science..."
-}
+### 2. Supabase Configuration
+
+Create a `.env` file in the project root:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-**Usage in the App:**
-- If an object contains `quote`, it is displayed as a short quote.
-- If it contains `title` (and optionally `text`), it is displayed as a long text entry.
+### 3. Database Setup
+
+Execute the following SQL commands in Supabase SQL Editor:
+
+#### Create the `quotes` table
+```sql
+DROP TABLE IF EXISTS quotes;
+
+CREATE TABLE quotes (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    content TEXT NOT NULL,
+    author TEXT
+);
+```
+
+#### Insert default quotes
+```sql
+INSERT INTO quotes (content, author) VALUES
+('Le courage n''est pas l''absence de peur, mais la capacité de vaincre ce qui fait peur.', 'Nelson Mandela'),
+('La vie est ce qui arrive pendant que vous êtes occupé à faire d''autres projets.', 'John Lennon');
+```
+
+#### Create function to add quotes
+**⚠️ Important**: Replace 'YOUR_ADMIN_PASSWORD' with your own secure password.
+```sql
+CREATE OR REPLACE FUNCTION add_new_quote(
+    p_password TEXT, 
+    p_quote TEXT, 
+    p_author TEXT
+)
+RETURNS VOID AS $$
+BEGIN
+    IF p_password = 'YOUR_ADMIN_PASSWORD' THEN
+        INSERT INTO quotes (content, author)
+        VALUES (p_quote, p_author);
+    ELSE
+        RAISE EXCEPTION 'wrong password';
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+#### Create function to delete quotes
+```sql
+CREATE OR REPLACE FUNCTION delete_quote(
+    p_password TEXT, 
+    p_quote_id INT
+)
+RETURNS VOID AS $$
+BEGIN
+    IF p_password = 'YOUR_ADMIN_PASSWORD' THEN
+        DELETE FROM quotes WHERE id = p_quote_id;
+    ELSE
+        RAISE EXCEPTION 'wrong password';
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+#### Enable Row Level Security (Optional but recommended)
+```sql
+ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read quotes"
+ON quotes FOR SELECT
+USING (true);
+
+CREATE POLICY "Only function can insert"
+ON quotes FOR INSERT
+WITH CHECK (false);
+
+CREATE POLICY "Only function can delete"
+ON quotes FOR DELETE
+USING (false);
+```
+
+#### Test your setup
+```sql
+SELECT * FROM quotes;
+SELECT add_new_quote('YOUR_ADMIN_PASSWORD', 'Test citation', 'Test auteur');
+SELECT delete_quote('YOUR_ADMIN_PASSWORD', 3);
+SELECT * FROM quotes;
+```
+
+See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed SQL setup instructions.
 
 ---
+
+## Admin Access
+
+Click on the **π** symbol in the footer to access the admin panel. Configure your admin password in the SQL functions above.
+
+---
+
 
 ## Screens
 
@@ -41,6 +127,8 @@ The `src/quote.json` file contains an array of objects. Each object can represen
 
 ## Features
 
+- **Supabase Integration** - Dynamic quote loading from database
+- **Admin Panel** - Add and delete quotes with password protection
 - Interactive skull animation following the mouse  
 - Dynamic rotation based on cursor position  
 - Smooth animations with customizable parameters  
@@ -75,9 +163,11 @@ npm run build
 ## Technologies
 
 - React  
-- Vite  
+- Vite
+- Supabase (Database & Authentication)
 - CSS3 Animations  
 - Web Audio API (for sound effects)
+- FontAwesome Icons
 
 ---
 
@@ -116,34 +206,119 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 ---
 
-# Application d’Affichage de Citations / FR
+# Application d'Affichage de Citations / FR
 
-Un projet React (Vite) permettant d’afficher des citations et de longs textes avec une animation interactive de crâne suivant le curseur, des effets sonores et des contrôles pratiques.
+Un projet React (Vite) permettant d'afficher des citations et de longs textes avec une animation interactive de crâne suivant le curseur, des effets sonores et des contrôles pratiques. Maintenant avec intégration Supabase pour la gestion dynamique des citations et un panneau d'administration.
 
 ---
 
-## Format du fichier JSON
+## Installation & Configuration
 
-Le fichier `src/quote.json` contient un tableau d’objets. Chaque objet peut être une citation simple ou une entrée détaillée avec un titre et un texte.
-
-### Exemple — Citation simple
-```json
-{
-  "quote": "La science est une manière de penser bien plus qu'un simple ensemble de connaissances."
-}
+### 1. Installer les dépendances
+```bash
+npm install
 ```
 
-### Exemple — Titre + Texte
-```json
-{
-  "title": "Les sœurs jumelles de la compréhension",
-  "text": "Aussi loin que je me souvienne, j’ai toujours apprécié la science..."
-}
+### 2. Configuration Supabase
+
+Créez un fichier `.env` à la racine du projet :
+```env
+VITE_SUPABASE_URL=votre_url_supabase
+VITE_SUPABASE_ANON_KEY=votre_cle_anon_supabase
 ```
 
-**Utilisation dans l’application :**  
-- Si un objet contient `quote`, il est affiché comme une citation courte.  
-- S’il contient `title` (et éventuellement `text`), il est affiché comme un texte long.
+### 3. Configuration de la base de données
+
+Exécutez les commandes SQL suivantes dans l'éditeur SQL de Supabase :
+
+#### Créer la table `quotes`
+```sql
+DROP TABLE IF EXISTS quotes;
+
+CREATE TABLE quotes (
+    id SERIAL PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    content TEXT NOT NULL,
+    author TEXT
+);
+```
+
+#### Insérer les citations par défaut
+```sql
+INSERT INTO quotes (content, author) VALUES
+('Le courage n''est pas l''absence de peur, mais la capacité de vaincre ce qui fait peur.', 'Nelson Mandela'),
+('La vie est ce qui arrive pendant que vous êtes occupé à faire d''autres projets.', 'John Lennon');
+```
+
+#### Créer la fonction pour ajouter une citation
+**⚠️ Important**: Remplacez `'YOUR_ADMIN_PASSWORD'` par votre propre mot de passe sécurisé.
+```sql
+CREATE OR REPLACE FUNCTION add_new_quote(
+    p_password TEXT, 
+    p_quote TEXT, 
+    p_author TEXT
+)
+RETURNS VOID AS $$
+BEGIN
+    IF p_password = 'VOTRE_MOT_DE_PASSE_ADMIN' THEN
+        INSERT INTO quotes (content, author)
+        VALUES (p_quote, p_author);
+    ELSE
+        RAISE EXCEPTION 'wrong password';
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+#### Créer la fonction pour supprimer une citation
+```sql
+CREATE OR REPLACE FUNCTION delete_quote(
+    p_password TEXT, 
+    p_quote_id INT
+)
+RETURNS VOID AS $$
+BEGIN
+    IF p_password = 'VOTRE_MOT_DE_PASSE_ADMIN' THEN
+        DELETE FROM quotes WHERE id = p_quote_id;
+    ELSE
+        RAISE EXCEPTION 'wrong password';
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+#### Activer Row Level Security (Optionnel mais recommandé)
+```sql
+ALTER TABLE quotes ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read quotes"
+ON quotes FOR SELECT
+USING (true);
+
+CREATE POLICY "Only function can insert"
+ON quotes FOR INSERT
+WITH CHECK (false);
+
+CREATE POLICY "Only function can delete"
+ON quotes FOR DELETE
+USING (false);
+```
+
+#### Tester votre configuration
+```sql
+SELECT * FROM quotes;
+SELECT add_new_quote('VOTRE_MOT_DE_PASSE_ADMIN', 'Test citation', 'Test auteur');
+SELECT delete_quote('VOTRE_MOT_DE_PASSE_ADMIN', 3);
+SELECT * FROM quotes;
+```
+
+Voir [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) pour les instructions SQL détaillées.
+
+---
+
+## Accès Admin
+
+Cliquez sur le symbole **π** dans le pied de page pour accéder au panneau d'administration. Configurez votre mot de passe admin dans les fonctions SQL ci-dessus.
 
 ---
 
@@ -159,6 +334,8 @@ Le fichier `src/quote.json` contient un tableau d’objets. Chaque objet peut ê
 
 ## Fonctionnalités
 
+- **Intégration Supabase** - Chargement dynamique des citations depuis la base de données
+- **Panneau Admin** - Ajouter et supprimer des citations avec protection par mot de passe
 - Animation de crâne interactive suivant la souris  
 - Rotation dynamique selon la position du curseur  
 - Animations fluides et personnalisables  
@@ -193,17 +370,18 @@ npm run build
 ## Technologies
 
 - React  
-- Vite  
+- Vite
+- Supabase (Base de données & Authentification)
 - Animations CSS3  
 - Web Audio API (pour les effets sonores)
+- FontAwesome Icons
 
 ---
 
 ## À faire
 
-- Ajouter une animation de chargement  
-- Ajouter des tests unitaires pour le composant Quote  
-- Améliorer l’accessibilité (navigation clavier, labels ARIA)
+- Améliorer l'accessibilité (navigation clavier, labels ARIA)
+- Ajouter des tests unitaires
 
 ---
 

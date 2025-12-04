@@ -1,7 +1,7 @@
 {
     "title_page": "Quote App",
     "title_app": "Quote Application",
-    "max_quote_length": 200,
+    "max_quote_length": 500,
     "copy_success_message": "Quote copied to clipboard!",
     "copy_failure_message": "Failed to copy quote."
 }
