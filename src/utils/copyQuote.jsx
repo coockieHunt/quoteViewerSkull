@@ -1,6 +1,6 @@
 import WriteSong from '../assets/write.ogg';
 import {PlayOggSound} from './interactSond.jsx';
-import config from '../data/config.json';
+import config from '../config.json';
 
 function copyQuote({quote, muted = false}) {
   navigator.clipboard.writeText(quote).then(() => {

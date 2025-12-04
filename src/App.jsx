@@ -1,8 +1,7 @@
 import './App.css';
-import './styles/skull.css';
-import './styles/quoteBlock.css';
-import './styles/skeleton/header.css';
-import './styles/skeleton/footer.css';
+import './styles/layout.css';
+import './styles/quote-normal.css';
+import './styles/quote-fullpage.css';
 
 import { useState } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,7 +17,9 @@ import AdminAddQuote from './components/AdminAddQuote.jsx';
 import copyQuote from './utils/copyQuote.jsx';
 import { PlayClickSound } from './utils/interactSond.jsx';
 import { useQuotes } from './hooks/useQuotes.jsx';
-import config from './data/config.json';
+import config from './config.json';
+import { UmamiTracker } from './components/umami/umami.components.jsx';
+
 
 function App() {
   const [alertText, setAlertText] = useState("");
@@ -88,6 +89,7 @@ function App() {
 
   return (
     <>
+      <UmamiTracker />
       <DustFlow />
       <FollowObjectDown muted={muted} shifted={fullPageOpen} />
       

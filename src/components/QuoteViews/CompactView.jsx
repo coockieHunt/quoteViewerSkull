@@ -18,14 +18,24 @@ const CompactView = ({ data, index, total, setIndex, onReadMore, onCopy }) => {
         <FontAwesomeIcon icon={faChevronLeft} />
       </button>
       
-      <div id='quoteContainer'>
-        <span onClick={handleCopy} style={{ cursor: data.type === "quote" && !isLongQuote(data) ? "pointer" : "default" }}>
-          <QuoteContent 
-            data={data} 
-            onReadMore={onReadMore} 
-            onCopy={onCopy} 
-          />
-        </span>
+      <div className="quote-column-wrapper">
+          
+          <div id='quoteContainer'>
+            <span onClick={handleCopy} style={{ cursor: data.type === "quote" && !isLongQuote(data) ? "pointer" : "default" }}>
+              <QuoteContent 
+                data={data} 
+                onReadMore={onReadMore} 
+                onCopy={onCopy}
+              />
+            </span>
+          </div>
+
+          {data.author && (
+            <h3 className="sticky-author-bottom">
+              __ {data.author}
+            </h3>
+          )}
+
       </div>
 
       <button 

@@ -1,0 +1,124 @@
+body:has(#QuoteBlock.quote-fullpage) {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+html:has(#QuoteBlock.quote-fullpage) {
+    overflow: hidden;
+}
+
+#QuoteBlock.quote-fullpage {
+    height: 85%;
+    width: 85%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    
+    border-radius: 10px;
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+        border-radius: 0;
+        height: 90vh;
+        height: 100dvh;
+        width: 100%;
+        top: 50%;
+        left: 50%;
+        transform: none;
+        overflow-x: hidden;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.quote-fullpage-content {
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+.quote-fullpage-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    flex-shrink: 0;
+    z-index: 100;
+    
+    h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        flex-grow: 1;
+        text-align: center;
+        max-width: 100%;
+        word-break: break-word;
+    }
+    
+    button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        
+        svg {
+            font-size: 20px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+    }
+}
+
+.quote-fullpage-text {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    
+    p {
+        width: auto;
+        max-width: 100%;
+        margin: 0;
+        padding: 0 40px 20px 40px;
+        box-sizing: border-box;
+        
+        text-align: justify;
+        line-height: 1.8;
+        font-size: 18px;
+        color: #222;
+        
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    
+    p:first-child {
+        padding-top: 20px;
+    }
+    
+    h2 {
+        margin-bottom: 20px;
+        text-align: center;
+        max-width: 100%;
+        word-break: break-word;
+    }
+    
+    @media (max-width: 768px) {
+        p {
+            padding: 0 20px 40px 20px;
+            font-size: 16px;
+        }
+    }
+}

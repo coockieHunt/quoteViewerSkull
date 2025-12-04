@@ -1,4 +1,4 @@
-import config from '../../data/config.json';
+import config from '../../config.json';
 import { isLongQuote } from '../../utils/quoteHelpers';
 
 const QuoteContent = ({ data, onReadMore, onCopy }) => {
@@ -10,7 +10,6 @@ const QuoteContent = ({ data, onReadMore, onCopy }) => {
           <button className="read-more-btn" onClick={onReadMore}>voir plus</button>
           {data.author && (
             <p style={{ fontStyle: 'italic', marginTop: '1rem', fontSize: '0.9em' }}>
-              — {data.author}
             </p>
           )}
         </div>
@@ -32,7 +31,6 @@ const QuoteContent = ({ data, onReadMore, onCopy }) => {
 
         {data.author && (
           <p style={{ fontStyle: 'italic', marginTop: '1rem', fontSize: '0.9em' }}>
-            — {data.author}
           </p>
         )}
       </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabaseClient';
-import '../styles/quoteBlock.css';
+import '../styles/quote-normal.css';
 
 const AdminAddQuote = ({ onClose }) => {
     const [password, setPassword] = useState('');
